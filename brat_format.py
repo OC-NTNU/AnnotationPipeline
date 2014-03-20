@@ -24,6 +24,8 @@ def convert_plos_to_brat():
     # Extract the boundaries for all sentences from the NLP document
     xml = ET.parse('NLP/{0}.xml'.format(filename))
     brat_txt = open('Brat/{0}.txt'.format(filename), 'w')
+    brat_so_alignment = open('Brat/{0}.soa'.format(filename), 'w')
+    
     for sentence in xml.iter('sentence'):
         startoffset = -1
         endoffset = -1
@@ -42,7 +44,9 @@ def convert_plos_to_brat():
                     startoffset = end
             # Find the sentence from the pure text and store it. 
             sentence_text = text[startoffset:endoffset].strip()
-            brat_txt.write(sentence_text+"\n")
+            if sentence_text:
+                brat_txt.write(sentence_text+"\n")
+                brat_so_alignment.write(str(startoffset)+" "+str(endoffset)+"\n")
     brat_txt.close()
 
 if __name__ == "__main__":
