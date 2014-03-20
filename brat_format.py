@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ET
 
 def convert_plos_to_brat():
     # Store the scopes of allthe interesting mark-up tags
-    useful_tags = ['abstract', 'body']
+    useful_tags = ['abstract', 'body', 'title', 'fig']
     scopes = []
     with open("NXML/{0}.so".format(filename), 'r') as file:
         for line in file:
@@ -20,20 +20,29 @@ def convert_plos_to_brat():
     
     # Get the pure text format
     text = open("NXML/{0}.txt".format(filename), 'r').read()
-    
+
     # Extract the boundaries for all sentences from the NLP document
     xml = ET.parse('NLP/{0}.xml'.format(filename))
     brat_txt = open('Brat/{0}.txt'.format(filename), 'w')
     for sentence in xml.iter('sentence'):
         startoffset = -1
         endoffset = -1
+        sentence_text = []
         for i, token in enumerate(sentence.iter('token')):
             if i == 0: startoffset = int(token.find('CharacterOffsetBegin').text)
             endoffset = int(token.find('CharacterOffsetEnd').text)
+            sentence_text.append(token.find('word').text)
         # Store only sentences that are in the abstract or body
-        tags = [scope[0] for scope in scopes if startoffset>=scope[1] and endoffset<=scope[2]]
-        if 'abstract' in tags or 'body' in tags:
-            brat_txt.write(text[startoffset:endoffset]+"\n")
+        tags = [tag for tag, start, end in scopes if startoffset>=start and endoffset<=end]
+        if ('abstract' in tags or 'body' in tags) and not 'fig' in tags:
+            # Remove all parts of section titles from the sentence. Stanford NLP tends to mix these into sentences.
+            # Assumes, as seems to be the case in CoreNLP, that titles are only attached to the start of sentences.
+            for tag, start, end in scopes:
+                if tag=="title" and startoffset<=start and endoffset>=end:
+                    startoffset = end
+            # Find the sentence from the pure text and store it. 
+            sentence_text = text[startoffset:endoffset].strip()
+            brat_txt.write(sentence_text+"\n")
     brat_txt.close()
 
 if __name__ == "__main__":
