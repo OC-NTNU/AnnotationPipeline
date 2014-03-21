@@ -12,11 +12,8 @@ import xml.etree.ElementTree as ET
 import os
 import collections
 
-directory = "Brat"
-nlp_directory = "NLP"
-
-def convert_to_ixml():
-    papers = set([filename[:filename.index('.')] for filename in os.listdir(directory)])
+def convert_to_ixml(ann_dir, nlp_dir):
+    papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])
     
     root = ET.Element('corpus')
     xml_tree = ET.ElementTree(element=root)
@@ -27,12 +24,12 @@ def convert_to_ixml():
         document = ET.SubElement(root, 'document')
         document.attrib = {'id' : paper}
         
-        sentences = [line.strip() for line in open(os.path.join(directory, paper+".txt"), 'r')]
-        offsets = [line.strip().split() for line in open(os.path.join(directory, paper+".soa"), 'r')]
-        nlp_xml = ET.parse(os.path.join(nlp_directory, paper+".xml"))
-        relations = [tuple(line.strip().split()) for line in open(os.path.join(directory, paper+".ann"), 'r') if "E" in line.strip().split()[0]]
-        entities = [tuple(line.strip().split()) for line in open(os.path.join(directory, paper+".ann"), 'r') if "T" in line.strip().split()[0]]
-        assert len(relations)+len(entities) == len([line.strip().split() for line in open(os.path.join(directory, paper+".ann"), 'r')]), "There are unrecognized annotations in the annotation file!" 
+        sentences = [line.strip() for line in open(os.path.join(ann_dir, paper+".txt"), 'r')]
+        offsets = [line.strip().split() for line in open(os.path.join(ann_dir, paper+".soa"), 'r')]
+        nlp_xml = ET.parse(os.path.join(nlp_dir, paper+".xml"))
+        relations = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "E" in line.strip().split()[0]]
+        entities = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "T" in line.strip().split()[0]]
+        assert len(relations)+len(entities) == len([line.strip().split() for line in open(os.path.join(ann_dir, paper+".ann"), 'r')]), "There are unrecognized annotations in the annotation file!" 
         # Build index from offset positions to sentence. 
         # (Uses only END position, because the start position can have been a removed headline, causing misalignment between CoreNLP and Brat formats)
         offsets_to_sentence = dict()
@@ -207,7 +204,12 @@ def convert_to_ixml():
     
 if __name__ == "__main__":
     optparser = OptionParser("Script for converting to Interaction XML format.")
+    optparser.add_option("-a", "--ann", default=None, dest="annotation_directory", help="Directory where the annotation files are stored.")
+    optparser.add_option("-p", "--prep", default=None, dest="analyses_directory", help="Directory where the linguistic preprocessing files are stored.")
     (options, args) = optparser.parse_args()
     
-    convert_to_ixml()
+    assert options.annotation_directory, "You must specify a directory from which to gather the annotation files."
+    assert options.analyses_directory, "You must specify a directory from which to gather the files with the linguistic preprocessings."    
+    
+    convert_to_ixml(options.annotation_directory, options.analyses_directory)
    
