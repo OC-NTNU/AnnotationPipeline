@@ -8,7 +8,7 @@ Currently defined for the PLoS format.
 from optparse import OptionParser
 import xml.etree.ElementTree as ET
 
-def convert_plos_to_brat():
+def convert_plos_to_brat(filename):
     # Store the scopes of allthe interesting mark-up tags
     useful_tags = ['abstract', 'body', 'title', 'fig']
     scopes = []
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     optparser.add_option("-f", "--filename", default=None, dest="filename", help="The filename of the file to be converted.")
     (options, args) = optparser.parse_args()
     
-    global filename; filename= options.filename
+    filename = options.filename
     assert filename, "You must specify which file to convert!"
     
-    convert_plos_to_brat()
+    convert_plos_to_brat(filename)

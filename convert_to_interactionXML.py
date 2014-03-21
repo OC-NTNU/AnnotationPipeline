@@ -7,6 +7,7 @@ Assumes that there is a subfolder "Annotations" that contains:
     x.nlp
 For every annotated paper with name x.
 """
+from optparse import OptionParser
 import xml.etree.ElementTree as ET
 import os
 import collections
@@ -14,8 +15,7 @@ import collections
 directory = "Brat"
 nlp_directory = "NLP"
 
-if __name__ == "__main__":
-    
+def convert_to_ixml():
     papers = set([filename[:filename.index('.')] for filename in os.listdir(directory)])
     
     root = ET.Element('corpus')
@@ -204,3 +204,10 @@ if __name__ == "__main__":
                     ii += 1
                     
     xml_tree.write("IXML/n.xml")
+    
+if __name__ == "__main__":
+    optparser = OptionParser("Script for converting to Interaction XML format.")
+    (options, args) = optparser.parse_args()
+    
+    convert_to_ixml()
+   
