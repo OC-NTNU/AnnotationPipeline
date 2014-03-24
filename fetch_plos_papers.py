@@ -15,13 +15,25 @@ def get_api_url(query):
 def doi_to_filename(doi):
     return re.sub("[^0-9A-Za-z+]", "", doi)
 
-def download_doi(doi):
+def download_doi(doi, outfolder="PLOS"):
+    """
+        Download paper with given DOI from PLoS.
+        
+        @param doi: The DOI of the paper to download.
+        @param outfolder: The folder to download the paper into.
+    """
     h = httplib2.Http()
     (resp_header, xml) = h.request(get_fetch_url(doi), "GET")
-    with open("PLOS/"+doi_to_filename(doi)+".xml", 'w') as file:
+    with open(outfolder + "/" + doi_to_filename(doi)+".xml", 'w') as file:
         file.write(xml)
 
-def download_query(query):
+def download_query(query, outfolder="PLOS"):
+    """
+        Download all papers returned with a keyword search from from PLoS.
+        
+        @param query: The keyword(s) to search PLoS for.
+        @param outfolder: The folder to download the papers into.
+    """
     url = get_api_url(query)
 
     h = httplib2.Http()
@@ -31,13 +43,14 @@ def download_query(query):
     for i, match in enumerate(re.finditer(r'<str name="id">(.*?)</str>', content)):
         id = match.group(1)
         (resp_header, xml) = h.request(get_fetch_url(id), "GET")
-        with open("PLOS/"+str(i)+".xml", 'w') as file:
+        with open(outfolder + "/" + str(i) + ".xml", 'w') as file:
             file.write(xml)
         
 if __name__=="__main__":
     optparser = OptionParser(description="Script to download full-text papers from PLoS.")
     optparser.add_option("--doi", default=None, dest="doi", help="Download paper from PLoS with the given ID.")
     optparser.add_option("--keyword", default=None, dest="keyword", help="Download all papers returned when querying PLoS with given keyword.")
+    optparser.add_option("--outfolder", default="PLOS", dest="outfolder", help="Output folder for the downloaded papers.")
     (options, args) = optparser.parse_args()
     
     if options.doi == None and options.keyword == None:
@@ -45,6 +58,6 @@ if __name__=="__main__":
     elif options.doi != None and options.keyword != None:
         print "Please either specify a DOI to a keyword, not both."
     elif options.doi == None and options.keyword != None:
-        download_query(options.keyword)
+        download_query(options.keyword, outfolder=options.outfolder)
     elif options.doi != None and options.keyword == None:
-        download_doi(options.doi)
+        download_doi(options.doi, outfolder=options.outfolder)
