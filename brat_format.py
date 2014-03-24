@@ -10,6 +10,9 @@ import xml.etree.ElementTree as ET
 import os
 
 def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP"):
+    """
+        Converts a single file to Brat format, assuming it has already been preprocessed by NXML2TXT and Stanford CoreNLP.
+    """
     # Store the scopes of allthe interesting mark-up tags
     useful_tags = ['abstract', 'body', 'title', 'fig']
     scopes = []

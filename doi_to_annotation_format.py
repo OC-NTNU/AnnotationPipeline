@@ -33,8 +33,9 @@ def run(doi_file, nxmlpath, coreNLPpath):
         os.mkdir("CoreNLP")
     if not os.path.exists("tmp"):
         os.mkdir("tmp")
+    filenames = [filename for filename in os.listdir("TXT")]
     with open(os.path.join("tmp", "corenlpfilelist"), 'w') as tmpfile:
-        tmpfile.write('\n'.join([filename for filename in os.listdir("TXT")]).lstrip("\n"))
+        tmpfile.write('\n'.join(filenames).lstrip("\n"))
     
     call(["java", "-cp", 
           os.path.join(coreNLPpath, "stanford-corenlp-3.3.1.jar") + ":" + 
@@ -49,6 +50,8 @@ def run(doi_file, nxmlpath, coreNLPpath):
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
        
     # Transform to Brat annotations
+    for filename in filenames:
+        brat_format.convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
 
 if __name__=="__main__":
     optparser = OptionParser("Downloads papers with given DOIs from PLoS, and does all the preprocessing requried to annotate in Brat.")
