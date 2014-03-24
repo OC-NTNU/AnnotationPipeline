@@ -11,14 +11,14 @@ import fetch_plos_papers
 import brat_format
 
 def run(doi_file, nxmlpath, coreNLPpath):
-    dois = [line.strip().split() for line in open(doi_file, 'r')]
+    dois = [line.strip() for line in open(doi_file, 'r')]
     
     # Download all the DOIs
     if not os.path.isdir("PLOS"):
         os.mkdir("PLOS")
     for doi in dois:
         fetch_plos_papers.download_doi(doi, outfolder="PLOS")
-    
+
     # Run NXML2TXT
     if not os.path.exists("TXT"):
         os.mkdir("TXT")
@@ -35,7 +35,8 @@ def run(doi_file, nxmlpath, coreNLPpath):
         os.mkdir("tmp")
     filenames = [filename for filename in os.listdir("TXT")]
     with open(os.path.join("tmp", "corenlpfilelist"), 'w') as tmpfile:
-        tmpfile.write('\n'.join(filenames).lstrip("\n"))
+        for filename in filenames:
+            tmpfile.write(os.path.join("TXT", filename) + "\n")    
     
     call(["java", "-cp", 
           os.path.join(coreNLPpath, "stanford-corenlp-3.3.1.jar") + ":" + 
@@ -51,7 +52,8 @@ def run(doi_file, nxmlpath, coreNLPpath):
        
     # Transform to Brat annotations
     for filename in filenames:
-        brat_format.convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
+        filename_root = filename[:filename.index('.')]
+        brat_format.convert_plos_to_brat(filename_root, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
 
 if __name__=="__main__":
     optparser = OptionParser("Downloads papers with given DOIs from PLoS, and does all the preprocessing requried to annotate in Brat.")
