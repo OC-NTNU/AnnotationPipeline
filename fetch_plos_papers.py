@@ -6,6 +6,7 @@ all papers that are returned when making an all-fields query with a keyword.
 from optparse import OptionParser
 import httplib2
 import re
+import os
 
 def get_fetch_url(id):
     return 'http://www.plosone.org/article/fetchObject.action?uri=info:doi/{0}&representation=XML'.format(id)
@@ -24,7 +25,9 @@ def download_doi(doi, outfolder="PLOS"):
     """
     h = httplib2.Http()
     (resp_header, xml) = h.request(get_fetch_url(doi), "GET")
-    with open(outfolder + "/" + doi_to_filename(doi)+".xml", 'w') as file:
+    filename = outfolder + "/" + doi_to_filename(doi)+".xml"
+    assert not os.path.exists(filename), "A paper with identical ID to an earlier paper has been downloaded!"
+    with open(filename, 'w') as file:
         file.write(xml)
 
 def download_query(query, outfolder="PLOS"):
