@@ -47,9 +47,9 @@ def run(doi_file, nxmlpath, coreNLPpath):
           os.path.join(coreNLPpath, "ejml-0.23.jar"), 
           "-Xmx3g","edu.stanford.nlp.pipeline.StanfordCoreNLP",
           "-annotators", "tokenize,cleanxml,ssplit,pos,lemma,ner,parse,dcoref", 
-          "-output", "xml", 
+          "-outputExtension", ".xml", "-replaceExtension", "-outputDirectory", "CoreNLP", 
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
-       
+
     # Transform to Brat annotations
     for filename in filenames:
         filename_root = filename[:filename.index('.')]

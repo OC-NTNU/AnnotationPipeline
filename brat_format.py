@@ -13,6 +13,8 @@ def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="B
     """
         Converts a single file to Brat format, assuming it has already been preprocessed by NXML2TXT and Stanford CoreNLP.
     """
+    if not os.path.isdir(bratfolder): os.mkdir(bratfolder)
+    
     # Store the scopes of allthe interesting mark-up tags
     useful_tags = ['abstract', 'body', 'title', 'fig']
     scopes = []
@@ -27,8 +29,11 @@ def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="B
 
     # Extract the boundaries for all sentences from the NLP document
     xml = ET.parse(os.path.join(corenlpfolder, filename+".xml"))
+
+    # Create the required files, including an empty dummy .ann file    
     brat_txt = open(os.path.join(bratfolder, filename+'.txt'), 'w')
     brat_so_alignment = open(os.path.join(bratfolder, filename+'.soa'), 'w')
+    open(os.path.join(bratfolder, filename+'.ann'), 'w')
     
     for sentence in xml.iter('sentence'):
         startoffset = -1
