@@ -16,7 +16,7 @@ def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="B
     if not os.path.isdir(bratfolder): os.mkdir(bratfolder)
     
     # Store the scopes of allthe interesting mark-up tags
-    useful_tags = ['abstract', 'body', 'title', 'fig']
+    useful_tags = ['abstract', 'body', 'title', 'fig', 'supplementary-material', 'table-wrap']
     scopes = []
     with open(os.path.join(sofolder, filename+'.so'), 'r') as file:
         for line in file:
@@ -45,7 +45,7 @@ def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="B
             sentence_text.append(token.find('word').text)
         # Store only sentences that are in the abstract or body
         tags = [tag for tag, start, end in scopes if startoffset>=start and endoffset<=end]
-        if ('abstract' in tags or 'body' in tags) and not 'fig' in tags:
+        if ('abstract' in tags or 'body' in tags) and not 'fig' in tags and not 'supplementary-material' in tags and not 'table-wrap' in tags:
             # Remove all parts of section titles from the sentence. Stanford NLP tends to mix these into sentences.
             # Assumes, as seems to be the case in CoreNLP, that titles are only attached to the start of sentences.
             for tag, start, end in scopes:
