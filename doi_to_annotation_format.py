@@ -28,7 +28,7 @@ def run(doi_file, nxmlpath, coreNLPpath):
         filename_root = filename[:filename.index('.')]
         call([nxmlpath, os.path.join("PLOS", filename), os.path.join("TXT", filename_root+".txt"), os.path.join("SO", filename_root+".so")])
 
-    # Run Stanford CoreNLP
+    # Run sentence spltting using CoreNLP 
     if not os.path.exists("CoreNLP"):
         os.mkdir("CoreNLP")
     if not os.path.exists("tmp"):
@@ -37,7 +37,7 @@ def run(doi_file, nxmlpath, coreNLPpath):
     with open(os.path.join("tmp", "corenlpfilelist"), 'w') as tmpfile:
         for filename in filenames:
             tmpfile.write(os.path.join("TXT", filename) + "\n")    
-    
+
     call(["java", "-cp", 
           os.path.join(coreNLPpath, "stanford-corenlp-3.3.1.jar") + ":" + 
           os.path.join(coreNLPpath, "stanford-corenlp-3.3.1-models.jar") + ":" + 
@@ -46,14 +46,12 @@ def run(doi_file, nxmlpath, coreNLPpath):
           os.path.join(coreNLPpath, "jollyday.jar") + ":" + 
           os.path.join(coreNLPpath, "ejml-0.23.jar"), 
           "-Xmx3g","edu.stanford.nlp.pipeline.StanfordCoreNLP",
-          "-annotators", "tokenize,cleanxml,ssplit,pos,lemma,ner,parse,dcoref", 
+          "-annotators", "tokenize,cleanxml,ssplit", 
           "-outputExtension", ".xml", "-replaceExtension", "-outputDirectory", "CoreNLP", 
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
 
-    # Transform to Brat annotations
-    for filename in filenames:
-        filename_root = filename[:filename.index('.')]
-        brat_format.convert_plos_to_brat(filename_root, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
+    # Transform to Brat format
+    brat_format.convert_all_plos_to_brat(txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
 
 if __name__=="__main__":
     optparser = OptionParser("Downloads papers with given DOIs from PLoS, and does all the preprocessing requried to annotate in Brat.")
