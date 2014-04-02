@@ -11,7 +11,7 @@ import os
 def get_fetch_url(id):
     return 'http://www.plosone.org/article/fetchObject.action?uri=info:doi/{0}&representation=XML'.format(id)
 def get_api_url(query):
-    return 'http://api.plos.org/search?q="{0}"&api_key=3pezRBRXdyzYW6ztfwft'.format('+'.join(query.split()).strip('+'))
+    return 'http://api.plos.org/search?q="{0}"&api_key=rc-hmLyPpmyMdfHcDhQv'.format('+'.join(query.split()).strip('+'))
 
 def doi_to_filename(doi):
     return re.sub("[^0-9A-Za-z+]", "", doi)
@@ -23,12 +23,14 @@ def download_doi(doi, outfolder="PLOS"):
         @param doi: The DOI of the paper to download.
         @param outfolder: The folder to download the paper into.
     """
-    h = httplib2.Http()
-    (resp_header, xml) = h.request(get_fetch_url(doi), "GET")
     filename = outfolder + "/" + doi_to_filename(doi)+".xml"
-    assert not os.path.exists(filename), "A paper with identical ID to an earlier paper has been downloaded!"
-    with open(filename, 'w') as file:
-        file.write(xml)
+    if os.path.exists(filename):
+        print "A paper DOI " + str(doi) + " has been downloaded earlier. Not downloading it..."
+    else:
+        h = httplib2.Http()
+        (resp_header, xml) = h.request(get_fetch_url(doi), "GET")
+        with open(filename, 'w') as file:
+            file.write(xml)
 
 def download_query(query, outfolder="PLOS"):
     """
