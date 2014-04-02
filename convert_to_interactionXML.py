@@ -11,8 +11,12 @@ from optparse import OptionParser
 import xml.etree.ElementTree as ET
 import os
 import collections
+import parse_and_align
 
 def convert_to_ixml(ann_dir, nlp_dir):
+    # First run parse and align script. Assuming this has not already been done.
+    parse_and_align.parse_and_align(filefolder=ann_dir, nlpfolder=nlp_dir)    
+    
     papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])
     
     root = ET.Element('corpus')
@@ -199,8 +203,11 @@ def convert_to_ixml(ann_dir, nlp_dir):
                                                 'type' : argumnet_type,
                                                 }
                     ii += 1
-                    
-    xml_tree.write("IXML/n.xml")
+    
+    if not os.path.isdir("IXML"):                
+        os.mkdir("IXML")
+        
+    xml_tree.write("IXML/corpus_interaction.xml")
     
 if __name__ == "__main__":
     optparser = OptionParser("Script for converting to Interaction XML format.")

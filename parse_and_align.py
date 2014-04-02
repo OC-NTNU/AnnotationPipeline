@@ -13,7 +13,6 @@ def parse_and_align(filefolder="Brat", nlpfolder="CoreNLP", coreNLPpath="/home/e
     
 def parse(filefolder, nlpfolder, coreNLPpath):
     # Create list of files to parse    
-    """
     if not os.path.isdir("tmp"):
         os.mkdir("tmp")
     
@@ -22,7 +21,7 @@ def parse(filefolder, nlpfolder, coreNLPpath):
     with open(os.path.join("tmp", "corenlpfilelist"), 'w') as file:
         for filename in filenames:
             file.write(filename + "\n")
-        """
+
     # Run CoreNLP on list of files
     call(["java", "-cp", 
           os.path.join(coreNLPpath, "stanford-corenlp-3.3.1.jar") + ":" + 
@@ -40,19 +39,16 @@ def align(filefolder, nlpfolder):
     filenames = set([filename[:filename.index('.')] for filename in os.listdir(nlpfolder)])
     
     for filename in filenames:
-        print filename
-        
         # Find the sentence offset boundaries
         sentence_starts = []
         for sentence in open(os.path.join(filefolder, filename+".soa"), 'r'):
             start, _ = sentence.strip().split()
             sentence_starts.append(int(start))
-        print len(sentence_starts)
+        
         # Find the sentences in the CoreNLP output
         cnlp_xml = ET.parse(os.path.join(nlpfolder, filename+".xml"))
         
         for i, sentence in enumerate(cnlp_xml.iter('sentence')):
-            print i
             # Note the starting offset of the sentence
             sentence_start = int(sentence.find('tokens').find('token').find('CharacterOffsetBegin').text)
             # Now, update the offset of all words
@@ -62,7 +58,7 @@ def align(filefolder, nlpfolder):
                 token.find('CharacterOffsetEnd').text = str(int(token.find('CharacterOffsetEnd').text) + change)
 
         # Then store the results
-        cnlp_xml.write(os.path.join(nlpfolder, filename+"hihi.xml"))
+        cnlp_xml.write(os.path.join(nlpfolder, filename+".xml"))
         
 if __name__=="__main__":
-    parse_and_align(filefolder="Brat")
+    print "Interface running the script from shell is not written yet."
