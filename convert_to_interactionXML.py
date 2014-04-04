@@ -13,10 +13,23 @@ import os
 import collections
 import parse_and_align
 
+def find_original_offset(original_offsets, offset):
+    offset = int(offset)
+    # Not a very efficient method
+    for (start, end) in original_offsets:
+        start = int(start); end = int(end)
+        sentence_length = end-start
+        if offset <= sentence_length:
+            return str(start+offset)
+        else:
+            offset -= (sentence_length+1)   # The +1 is required due to something to do with the non-overlap of offsets
+    assert False
+
 def convert_to_ixml(ann_dir, nlp_dir):
     # First run parse and align script. Assuming this has not already been done.
     parse_and_align.parse_and_align(filefolder=ann_dir, nlpfolder=nlp_dir)    
     
+    # The build the I-XML
     papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])
     
     root = ET.Element('corpus')
@@ -39,8 +52,9 @@ def convert_to_ixml(ann_dir, nlp_dir):
         offsets_to_sentence = dict()
         for sentence in nlp_xml.iter('sentence'):
             for i, token in enumerate(sentence.iter('token')):
+                if i == 0: start = token.find('CharacterOffsetBegin').text
                 end = token.find('CharacterOffsetEnd').text
-            offsets_to_sentence[end] = sentence
+            offsets_to_sentence[(start, end)] = sentence
             
         # Build index from sentence # to list of entities and relations in sentence
         sentence_nbr_to_entities = collections.defaultdict(set)
@@ -49,13 +63,15 @@ def convert_to_ixml(ann_dir, nlp_dir):
         for i, sentence in enumerate(sentences):
             # Entities are included if they have endoffset before the endoffset of the current sentence
             for entity in entities:
-                if int(entity[3]) <= sentence_start_offset+len(sentence) and int(entity[2]) >= sentence_start_offset:
+                original_start_offset = find_original_offset(offsets, entity[3])
+                original_end_offset = find_original_offset(offsets, entity[2])
+                if int(original_end_offset) <= int(offsets[i][1]) and int(original_start_offset) >= int(offsets[i][0]):
                     # Make a new entity that uses sentence internal offset, rather than Brat offset
                     reindexed_entity = list(entity)
-                    reindexed_entity[2] = int(reindexed_entity[2]) - sentence_start_offset
-                    reindexed_entity[3] = int(reindexed_entity[3]) - sentence_start_offset                    
+                    reindexed_entity[2] = original_start_offset
+                    reindexed_entity[3] = original_end_offset                  
                     reindexed_entity = tuple(reindexed_entity)
-                    sentence_nbr_to_entities[i].add(entity)
+                    sentence_nbr_to_entities[i].add(reindexed_entity)
             sentence_start_offset += len(sentence)
             # Entities are included if all their arguments are in the sentence
             # NOTE: This will create a problem for co-ref, but TEES is unable to handle coref anyway
@@ -81,7 +97,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
                                     'charOffset' : start+"-"+end}
                                     
             # Use pre-built index to find matching sentence in CoreNLP output
-            nlp_sentence_node = offsets_to_sentence[end]
+            nlp_sentence_node = offsets_to_sentence[(start, end)]
 
             # Create the linguistic analysis nodes
             analysis_node = ET.SubElement(sentence_node, 'analyses')
@@ -140,7 +156,6 @@ def convert_to_ixml(ann_dir, nlp_dir):
                         # therefore spurious, and should therefore be skipped.
                         pass
                     
-
             # NOTE: This script ignores phrasalization, because that cannot be read 
             # directly from the CoreNLP output XML. If we need this, it needs to be
             # extracted from the pennstring.
@@ -161,8 +176,8 @@ def convert_to_ixml(ann_dir, nlp_dir):
                                       'type' : entity[1],
                                       'id' :  eid,
                                       'charOffset' : entity[2]+"-"+entity[3],
-                                      'headOffset' : entity[2]+"-"+entity[3],
-                                      'origOffset' : str(int(sstart)+int(entity[2]))+"-"+str(int(sstart)+int(entity[3])),
+#                                      'headOffset' : entity[2]+"-"+entity[3],
+#                                      'origOffset' : str(int(sstart)+int(entity[2]))+"-"+str(int(sstart)+int(entity[3])),
                                       }
                 if entity[1] in ["Variable", "Thing"]:
                     entity_node.attrib['given'] = "True"
@@ -219,4 +234,3 @@ if __name__ == "__main__":
     assert options.analyses_directory, "You must specify a directory from which to gather the files with the linguistic preprocessings."    
     
     convert_to_ixml(options.annotation_directory, options.analyses_directory)
-   
