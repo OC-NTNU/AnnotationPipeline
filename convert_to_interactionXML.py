@@ -85,7 +85,15 @@ def convert_to_ixml(ann_dir, nlp_dir):
                     _ids = [roleid[roleid.index(':')+1:] for roleid in relation[1:]]
                     if all([_id in argument_ids for _id in _ids]):
                         sentence_nbr_to_relations[i].add(relation)
-            
+        
+        # Build index from relation original id to its arguments
+        rid_rarg_idx = dict()
+        for relation in relations:
+            argument_ids = []
+            for argument in relation[1:]:
+                argument_type, argument_id = argument.split(':')
+                argument_ids.append(argument_id)
+            rid_rarg_idx[relation[0]] = argument_ids
             
         # Create sentence level nodes in the XML
         for i, sentence in enumerate(sentences):
@@ -164,7 +172,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             entities = sentence_nbr_to_entities[i]
             relations = sentence_nbr_to_relations[i]
 
-            # Index original_ID -> new_ID for entities and relations
+            # Index original_ID -> new_ID for entities 
             oeid_neid_idx = dict()
         
             for ii, entity in enumerate(entities):
@@ -183,8 +191,11 @@ def convert_to_ixml(ann_dir, nlp_dir):
                     entity_node.attrib['given'] = "True"
                 else:
                     entity_node.attrib['event'] = "True"
+
+            # Index original ID -> new ID for micro-relations
+            orid_nrid_idx = dict()
             
-            # A for-loop is impossible, because the events need to be added in a specific order, no neccessarily the order produced by the iterator
+            # A single for-loop is impossible, because the events need to be added in a specific order, no neccessarily the order produced by the iterator
             ii = 0
             relations = list(relations)
             while relations:
@@ -195,7 +206,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
                 all_arguments_exist = (source_id in oeid_neid_idx)
                 for argument in relation[2:]:
                     _, argument_id = argument.split(':')
-                    all_arguments_exist = all_arguments_exist and (argument_id in oeid_neid_idx)
+                    all_arguments_exist = all_arguments_exist and ((argument_id in oeid_neid_idx) or (argument_id in orid_nrid_idx))
                     
                 if not all_arguments_exist:
                     # Not all the required events have been processed yet, so we postpone processing this event.
@@ -203,18 +214,27 @@ def convert_to_ixml(ann_dir, nlp_dir):
                 else:
                     # Every relation should be split into a node for each of the arguments
                     for iii, argument in enumerate(relation[2:]):
-                        # NOTE: There is a problem where the argument of an event is another event that has more than one argument. In this problem, it is hard to know where to attach the event.
                         argumnet_type, argument_id = argument.split(':')
                         
                         microevent_id = paper+"."+str(i)+"."+str(ii)+"."+str(iii)
-                        oeid_neid_idx[event_id] = microevent_id
+                        orid_nrid_idx[event_id] = microevent_id
+                        
+                        # If e2 is an event, you have to backtrack to find the trigger of the event
+                        # Assumes that there is only one layer, otherwise it becomes impossible to identiy trigger
+                        e2 = oeid_neid_idx.get(argument_id)
+                        if e2 == None:
+                            arguments = rid_rarg_idx[argument_id]
+                            for argument in arguments:
+                                if argument[0] == "T":
+                                    e2 = oeid_neid_idx[argument]
+                                    break
                         
                         relation_node = ET.SubElement(sentence_node, 'interaction')
                         relation_node.attrib = {'directed' : 'True',
                                                 'event' : 'True',
                                                 'id' : microevent_id,
                                                 'e1' : oeid_neid_idx[source_id],
-                                                'e2' : oeid_neid_idx[argument_id],
+                                                'e2' : e2,
                                                 'type' : argumnet_type,
                                                 }
                     ii += 1
