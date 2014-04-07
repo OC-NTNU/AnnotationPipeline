@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Script for converting Brat annotations combined with output from Stanford CoreNLP to InteractionXML format.
-
-Assumes that there is a subfolder "Annotations" that contains:
-    x.ann
-    x.nlp
-For every annotated paper with name x.
 """
 from optparse import OptionParser
 import xml.etree.ElementTree as ET
@@ -46,7 +41,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
         nlp_xml = ET.parse(os.path.join(nlp_dir, paper+".xml"))
         relations = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "E" in line.strip().split()[0]]
         entities = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "T" in line.strip().split()[0]]
-        assert len(relations)+len(entities) == len([line.strip().split() for line in open(os.path.join(ann_dir, paper+".ann"), 'r')]), "There are unrecognized annotations in the annotation file!" 
+
         # Build index from offset positions to sentence. 
         # (Uses only END position, because the start position can have been a removed headline, causing misalignment between CoreNLP and Brat formats)
         offsets_to_sentence = dict()
