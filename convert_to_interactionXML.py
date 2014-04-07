@@ -99,7 +99,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
         for i, sentence in enumerate(sentences):
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
-            sentence_node.attrib = {'id' : paper+"."+str(i),
+            sentence_node.attrib = {'id' : paper+".s"+str(i),
                                     'tail' : '',
                                     'text' : sentence,
                                     'charOffset' : start+"-"+end}
@@ -180,7 +180,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             for ii, entity in enumerate(entities):
                 entity_node = ET.SubElement(sentence_node, 'entity')
                 sstart, _ = offsets[i]
-                eid = paper+"."+str(i)+"."+str(ii)
+                eid = paper+"."+str(i)+".e"+str(ii)
                 oeid_neid_idx[entity[0]] = eid
                 entity_node.attrib = {'text' : ' '.join(entity[4:]).strip(),
                                       'type' : entity[1],
@@ -218,7 +218,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
                     for iii, argument in enumerate(relation[2:]):
                         argumnet_type, argument_id = argument.split(':')
                         
-                        microevent_id = paper+"."+str(i)+"."+str(ii)+"."+str(iii)
+                        microevent_id = paper+"."+str(i)+"."+str(ii)+".i"+str(iii)
                         orid_nrid_idx[event_id] = microevent_id
                         
                         # If e2 is an event, you have to backtrack to find the trigger of the event
