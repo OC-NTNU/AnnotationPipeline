@@ -39,7 +39,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
     for paper in papers:
         # Create document level node in the XML
         document = ET.SubElement(root, 'document')
-        document.attrib = {'id' : paper}
+        document.attrib = {'id' : paper, 'origId' : paper}
         
         sentences = [line.strip() for line in open(os.path.join(ann_dir, paper+".txt"), 'r')]
         offsets = [line.strip().split() for line in open(os.path.join(ann_dir, paper+".soa"), 'r')]
@@ -100,7 +100,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
             sentence_node.attrib = {'id' : paper+".s"+str(i),
-                                    'tail' : '',
+                                    'tail' : ' ',
                                     'text' : sentence,
                                     'charOffset' : start+"-"+end}
                                     
