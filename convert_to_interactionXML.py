@@ -63,8 +63,8 @@ def convert_to_ixml(ann_dir, nlp_dir):
         for i, sentence in enumerate(sentences):
             # Entities are included if they have endoffset before the endoffset of the current sentence
             for entity in entities:
-                original_start_offset = find_original_offset(offsets, entity[3])
-                original_end_offset = find_original_offset(offsets, entity[2])
+                original_start_offset = find_original_offset(offsets, entity[2])
+                original_end_offset = find_original_offset(offsets, entity[3])
                 if int(original_end_offset) <= int(offsets[i][1]) and int(original_start_offset) >= int(offsets[i][0]):
                     # Make a new entity that uses sentence internal offset, rather than Brat offset
                     reindexed_entity = list(entity)
@@ -112,7 +112,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             
             # Tokenization nodes
             tokenization_node = ET.SubElement(analysis_node, 'tokenization')
-            tokenization_node.attrib = {'tokenizer' : 'CoreNLP'}
+            tokenization_node.attrib = {'tokenizer' : 'CoreNLP', 'ProteinNameSplitter' : 'False', 'source' : 'OCEAN-CERTAIN'}
             
             # Now there is a problem; namely that maybe not the entire sentence
             # that CoreNLP has extracted has been used in Brat. Specifically,
@@ -127,17 +127,19 @@ def convert_to_ixml(ann_dir, nlp_dir):
                     oid_nid_idx[token.attrib['id']] = unique_id
                     token_node = ET.SubElement(tokenization_node, 'token')
                     token_node.attrib = {"POS" : token.find('POS').text,
-                                       "CharacterOffset" : token.find('CharacterOffsetBegin').text+"-"+token.find('CharacterOffsetEnd').text,
-                                       "id" : unique_id, 
-                                        "text" :  token.find('word').text}
+                                        "charOffset" : token.find('CharacterOffsetBegin').text+"-"+token.find('CharacterOffsetEnd').text,
+                                        "id" : unique_id, 
+                                        "text" :  token.find('word').text,
+#                                        "headScore" : "1" ,
+                                        }
 #                                        headScore lacks in the CoreNLP original data
             
             # Parsing information nodes
             parse_node = ET.SubElement(analysis_node, 'parse')
             parse_node.attrib = {"parser" : "CoreNLP",
                                  "stanford" : "ok", 
-                                 "tokenizer" : "CoreNLP",
                                  "pennstring" : nlp_sentence_node.find('parse').text,
+                                 "tokenizer" : "CoreNLP",
                                  }
             
             for dependencies in nlp_sentence_node.iter('dependencies'):
