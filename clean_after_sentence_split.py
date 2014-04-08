@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Script to readjust SOA offsets after fixing sentence splitting.
+
+Can cause a problem where sentences are split without any character in between,
+such as "Using the formula:where X is ...", this can happen when formulas are 
+removed. The question is whether TEES can handle
 """
 import re, os
 from optparse import OptionParser
@@ -30,11 +34,9 @@ def readjust(sfilename=None, txtfilename=None):
     # that is stricly after the last sentence.
     last_end = -1
     for sentence in sentences:
-        print sentence
         finds = [(f.start(), f.end()) for f in re.finditer(re.escape(sentence), original_text)]
         for find in finds:
-            print find
-            if find[0] > last_end:
+            if find[0] >= last_end: #PROBLEMS? SEE ABOVE
                 soas.append(find)
                 last_end = find[1]
                 break
