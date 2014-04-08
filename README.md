@@ -23,10 +23,11 @@ Run TEES with this command:
 
 <ol>
 <li>Add DOIs to a file</li>
-<li>???</li>
-<li>Classify on TEES</li>
+<li>Run doi_to_annotation_format with --nossplit option</li>
+<li>Run convert_to_IXML (not tested yet)</li>
+<li>Classify on TEES (not tested yet)</li>
 </ol>
 
 Run TEES with this command:
 
-<code>python classify.py ???</core>
+<code>python classify.py ??? (not tested yet)</core>

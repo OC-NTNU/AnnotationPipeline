@@ -9,17 +9,17 @@ from optparse import OptionParser, OptionGroup
 import xml.etree.ElementTree as ET
 import os
 
-def convert_all_plos_to_brat(txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP"):
+def convert_all_plos_to_brat(txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP", endline="\n\n"):
     """
         Converts all files found in txtfolder to Brat format. Does not check for mismatch (i.e. lack of
         parsed xml for a given txt etc)
     """
     for filename_full in os.listdir(txtfolder):
         filename = filename_full[:filename_full.index('.')]
-        convert_plos_to_brat(filename, txtfolder=txtfolder, sofolder=sofolder, bratfolder=bratfolder, corenlpfolder=corenlpfolder)
+        convert_plos_to_brat(filename, txtfolder=txtfolder, sofolder=sofolder, bratfolder=bratfolder, corenlpfolder=corenlpfolder, endline=endline)
     
 
-def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP"):
+def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP", endline="\n\n"):
     """
         Converts a single file to Brat format, assuming it has already been preprocessed by NXML2TXT and Stanford CoreNLP.
     """
@@ -59,7 +59,7 @@ def convert_plos_to_brat(filename, txtfolder="TXT", sofolder="SO", bratfolder="B
             # Find the sentence from the pure text and store it. 
             sentence_text = text[startoffset:endoffset].strip()
             if sentence_text:
-                brat_txt.write(sentence_text+"\n\n")
+                brat_txt.write(sentence_text+endline)
                 brat_so_alignment.write(str(startoffset)+" "+str(endoffset)+"\n")
     brat_txt.close()
     brat_so_alignment.close()
@@ -82,6 +82,6 @@ if __name__ == "__main__":
     assert options.filename or options.all_files, "You must specify eith one file to convert, or choose to convert all!"
     
     if options.all_files:
-        convert_all_plos_to_brat(txtfolder=options.txtfolder, sofolder=options.sofolder, bratfolder=options.bratfolder, corenlpfolder=options.corenlpfolder)
+        convert_all_plos_to_brat(txtfolder=options.txtfolder, sofolder=options.sofolder, bratfolder=options.bratfolder, corenlpfolder=options.corenlpfolder, endline="\n\n")
     else:
-        convert_plos_to_brat(options.filename, txtfolder=options.txtfolder, sofolder=options.sofolder, bratfolder=options.bratfolder, corenlpfolder=options.corenlpfolder)
+        convert_plos_to_brat(options.filename, txtfolder=options.txtfolder, sofolder=options.sofolder, bratfolder=options.bratfolder, corenlpfolder=options.corenlpfolder, endline="\n\n")

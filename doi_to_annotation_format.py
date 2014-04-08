@@ -10,7 +10,7 @@ import os
 import fetch_plos_papers
 import brat_format
 
-def run(doi_file, nxmlpath, coreNLPpath):
+def run(doi_file, nxmlpath, coreNLPpath, nossplit):
     dois = [line.strip() for line in open(doi_file, 'r')]
     
     # Download all the DOIs
@@ -51,13 +51,15 @@ def run(doi_file, nxmlpath, coreNLPpath):
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
 
     # Transform to Brat format
-    brat_format.convert_all_plos_to_brat(txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP")
+    endline = "\n" if nossplit else "\n\n"
+    brat_format.convert_all_plos_to_brat(txtfolder="TXT", sofolder="SO", bratfolder="Brat", corenlpfolder="CoreNLP", endline=endline)
 
 if __name__=="__main__":
     optparser = OptionParser("Downloads papers with given DOIs from PLoS, and does all the preprocessing requried to annotate in Brat.")
     optparser.add_option("-i", "--doi", dest="doi_file", default=None, help="Input file - should contain all the DOIs to be downloaded on a separate line.")    
     optparser.add_option("-n", "--nxml2txt", dest="nxmlpath", default=os.path.join(os.getcwd(), "nxml2txt"), help="Path of the NXML2TXT executable.")
     optparser.add_option("-c", "--corenlp", dest="coreNLPpath", default=None, help="Path to the folder containing Stanford CoreNLP.")
+    optparser.add_option("--nossplit", default=False, dest="nossplit", action="store_true", help="Pass this trigger if manual sentence splitting is not to be used.")    
     (options, args) = optparser.parse_args()
     
     assert options.doi_file, "You must specify an input file!"
@@ -66,4 +68,4 @@ if __name__=="__main__":
     assert options.coreNLPpath, "You must specify the path for the CoreNLP folder!"
     assert os.path.isdir(options.coreNLPpath), "The given CoreNLP folderdoes not exist!"
     
-    run(options.doi_file, options.nxmlpath, options.coreNLPpath)
+    run(options.doi_file, options.nxmlpath, options.coreNLPpath, options.nossplit)
