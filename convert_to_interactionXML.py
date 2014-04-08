@@ -41,6 +41,8 @@ def convert_to_ixml(ann_dir, nlp_dir):
         nlp_xml = ET.parse(os.path.join(nlp_dir, paper+".xml"))
         relations = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "E" in line.strip().split()[0]]
         entities = [tuple(line.strip().split()) for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "T" in line.strip().split()[0]]
+        # This assumes that there is no other types of modification than negation
+        negations = [line.strip().split()[2] for line in open(os.path.join(ann_dir, paper+".ann"), 'r') if "A" in line.strip().split()[0]]
 
         # Build index from offset positions to sentence. 
         # (Uses only END position, because the start position can have been a removed headline, causing misalignment between CoreNLP and Brat formats)
@@ -234,6 +236,9 @@ def convert_to_ixml(ann_dir, nlp_dir):
                                                 'e2' : e2,
                                                 'type' : argumnet_type,
                                                 }
+                                                
+                        if event_id in negations:
+                            relation_node.attrib['negation'] = 'True'
                     ii += 1
     
     if not os.path.isdir("IXML"):                

@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from subprocess import call
 
 def parse_and_align(filefolder="Brat", nlpfolder="CoreNLP", coreNLPpath="/home/elias/master/sfcnlp"):
-#    parse(filefolder, nlpfolder, coreNLPpath)
+    parse(filefolder, nlpfolder, coreNLPpath)
     align(filefolder, nlpfolder)
     
 def parse(filefolder, nlpfolder, coreNLPpath):
@@ -36,7 +36,7 @@ def parse(filefolder, nlpfolder, coreNLPpath):
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
           
 def align(filefolder, nlpfolder):
-    filenames = set([filename[:filename.index('.')] for filename in os.listdir(nlpfolder)])
+    filenames = set([filename[:filename.index('.')] for filename in os.listdir(filefolder)])
     
     for filename in filenames:
         # Find the sentence offset boundaries
