@@ -17,7 +17,7 @@ Scripts to convert papers between the different formats in the pipeline.
 
 Run TEES with this command:
 
-python train.py --trainFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml --develFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml --testFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml -o output -t OC -p CoreNLP
+<code>python train.py --trainFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml --develFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml --testFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_interaction.xml -o output -t OC -p CoreNLP</code>
 
 <h3>Classifying on TEES</h3>
 
@@ -29,4 +29,4 @@ python train.py --trainFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_inte
 
 Run TEES with this command:
 
-python classify.py ???
+<code>python classify.py ???</core>
