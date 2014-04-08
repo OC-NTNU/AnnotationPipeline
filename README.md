@@ -5,13 +5,15 @@ Scripts to convert papers between the different formats in the pipeline.
 
 <h3>Training a TEES model</h3>
 
-1. Add DOIs to a file
-2. Run doi_to_annotation_format
-3. Do manual sentence splitting
-4. Run clean_after_sentence_split
-5. Annotate in Brat
-6. Run convert_to_IXML (currently parsing is commented out, recomment that)
-7. Train TEES
+<ol>
+<li>Add DOIs to a file</li>
+<li>Run doi_to_annotation_format</li>
+<li>Do manual sentence splitting</li>
+<li>Run clean_after_sentence_split</li>
+<li>Annotate in Brat</li>
+<li>Run convert_to_IXML (currently parsing is commented out, recomment that)</li>
+<li>Train TEES</li>
+</ol>
 
 Run TEES with this command:
 
@@ -19,9 +21,11 @@ python train.py --trainFile /home/elias/NTNU/AnnotationPipeline/IXML/corpus_inte
 
 <h3>Classifying on TEES</h3>
 
-1. Add DOIs to a file
-2. ???
-3. Classify on TEES
+<ol>
+<li>Add DOIs to a file</li>
+<li>???</li>
+<li>Classify on TEES</li>
+</ol>
 
 Run TEES with this command:
 
