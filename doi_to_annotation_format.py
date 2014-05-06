@@ -11,7 +11,7 @@ import fetch_plos_papers
 import brat_format
 
 def run(doi_file, nxmlpath, coreNLPpath, nossplit):
-    dois = [line.strip() for line in open(doi_file, 'r')]
+    dois = [line.strip() for line in open(doi_file, 'r') if not '#' in line]
     
     # Download all the DOIs
     if not os.path.isdir("PLOS"):
