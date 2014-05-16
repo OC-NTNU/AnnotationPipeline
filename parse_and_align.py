@@ -16,11 +16,12 @@ def parse(filefolder, nlpfolder, coreNLPpath):
     if not os.path.isdir("tmp"):
         os.mkdir("tmp")
     
-    filenames = [os.path.join(filefolder, filename) for filename in os.listdir(filefolder) if '.txt' in filename]
+    filenames = [filename for filename in os.listdir(filefolder) if '.txt' in filename]
     
     with open(os.path.join("tmp", "corenlpfilelist"), 'w') as file:
         for filename in filenames:
-            file.write(filename + "\n")
+            if not os.path.exists(os.path.join(nlpfolder, filename[:-4]+".xml")):
+                file.write(os.path.join(filefolder, filename) + "\n")
 
     # Run CoreNLP on list of files
     call(["java", "-cp", 

@@ -31,7 +31,8 @@ def convert_to_ixml(ann_dir, nlp_dir):
     xml_tree = ET.ElementTree(element=root)
     root.attrib = {'source' : 'OceanCertainCorpus'}
     
-    for paper in papers:
+    for paper_number, paper in enumerate(papers):
+        print "Converting paper", paper_number
         # Create document level node in the XML
         document = ET.SubElement(root, 'document')
         document.attrib = {'id' : paper, 'origId' : paper}
