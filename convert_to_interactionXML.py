@@ -21,18 +21,22 @@ def find_original_offset(original_offsets, offset):
     assert False
 
 def convert_to_ixml(ann_dir, nlp_dir):
-    # First run parse and align script. Assuming this has not already been done.
+    # First run parse and align script.
     parse_and_align.parse_and_align(filefolder=ann_dir, nlpfolder=nlp_dir)    
     
-    # The build the I-XML
-    papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])
+    # Find all the papers    
+    papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])    
     
+    do_convert(papers, ann_dir, nlp_dir, "corpus")
+    
+    
+def do_convert(papers, ann_dir, nlp_dir, filename):
     root = ET.Element('corpus')
     xml_tree = ET.ElementTree(element=root)
     root.attrib = {'source' : 'OceanCertainCorpus'}
     
     for paper_number, paper in enumerate(papers):
-        print "Converting paper", paper_number
+        print "Converting paper", paper_number, paper
         # Create document level node in the XML
         document = ET.SubElement(root, 'document')
         document.attrib = {'id' : paper, 'origId' : paper}
@@ -95,6 +99,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             
         # Create sentence level nodes in the XML
         for i, sentence in enumerate(sentences):
+            print "Sentence", i
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
             sentence_node.attrib = {'id' : paper+".s"+str(i),
@@ -245,7 +250,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
     if not os.path.isdir("IXML"):                
         os.mkdir("IXML")
         
-    xml_tree.write("IXML/corpus_interaction.xml")
+    xml_tree.write("IXML/"+filename+".xml")
     
 if __name__ == "__main__":
     optparser = OptionParser("Script for converting to Interaction XML format.")
