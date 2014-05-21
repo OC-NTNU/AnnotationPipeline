@@ -17,11 +17,15 @@ def build_corpora(ann_dir, nlp_dir):
     
     # Create partitions of the papers
     for start_index in xrange(0, len(papers), 2):
-         test_set = [papers[start_index], papers[start_index+1]]
-         training_set = [paper for paper in papers if not start_index in [start_index, start_index+1]]
-         
-         do_convert(test_set, ann_dir, nlp_dir, "test_"+str(start_index/2))
-         do_convert(training_set, ann_dir, nlp_dir, "train_"+str(start_index/2))
+        print "Creating fold", start_index/2
+        test_set = [papers[start_index], papers[start_index+1]]
+        training_set = [paper for j, paper in enumerate(papers) if not j in [start_index, start_index+1]]
+        devel_set = training_set[:len(training_set)//2]
+        training_set = training_set[len(training_set)//2:]
+        
+        do_convert(test_set, ann_dir, nlp_dir, "test_"+str(start_index/2), given="True")
+        do_convert(training_set, ann_dir, nlp_dir, "train_"+str(start_index/2), given="True")
+        do_convert(devel_set, ann_dir, nlp_dir, "devel_"+str(start_index/2), given="True")
 
 if __name__ == "__main__":
     optparser = OptionParser("Script for building IXML corpora for cross validation. Assumes 10 papers and 5 fold validation.")

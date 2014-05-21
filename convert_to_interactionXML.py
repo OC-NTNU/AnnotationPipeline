@@ -30,7 +30,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
     do_convert(papers, ann_dir, nlp_dir, "corpus")
     
     
-def do_convert(papers, ann_dir, nlp_dir, filename):
+def do_convert(papers, ann_dir, nlp_dir, filename, given='True'):
     root = ET.Element('corpus')
     xml_tree = ET.ElementTree(element=root)
     root.attrib = {'source' : 'OceanCertainCorpus'}
@@ -193,7 +193,7 @@ def do_convert(papers, ann_dir, nlp_dir, filename):
 #                                      'origOffset' : str(int(sstart)+int(entity[2]))+"-"+str(int(sstart)+int(entity[3])),
                                       }
                 if entity[1] in ["Variable", "Thing"]:
-                    entity_node.attrib['given'] = "True"
+                    entity_node.attrib['given'] = given
                 else:
                     entity_node.attrib['event'] = "True"
 
