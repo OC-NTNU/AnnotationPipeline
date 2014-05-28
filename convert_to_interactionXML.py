@@ -95,6 +95,7 @@ def convert_to_ixml(ann_dir, nlp_dir):
             
         # Create sentence level nodes in the XML
         for i, sentence in enumerate(sentences):
+	    print "Sentence", i
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
             sentence_node.attrib = {'id' : paper+".s"+str(i),
