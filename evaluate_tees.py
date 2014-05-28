@@ -182,12 +182,12 @@ if __name__ == "__main__":
              ("/data/software/nlp/TEES/tmp/fold4/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_4"),
             ]
     
-    confusion_e = None
-    confusion_i = None
+	confusion_e = None
+	confusion_i = None
     
-    for ii, gg in files:
-        confusion_e, confusion_i = compare(ii, gg, confusion_matrix_entities=confusion_e, confusion_matrix_argument=confusion_i)
+	for ii, gg in files:
+		confusion_e, confusion_i = compare(ii, gg, confusion_matrix_entities=confusion_e, confusion_matrix_argument=confusion_i)
     
-    print_matrix(confusion_e, entity_type)
-    print 
-    print_matrix(confusion_i, argument_type)
+	print_matrix(confusion_e, entity_type)
+	print 
+	print_matrix(confusion_i, argument_type)
