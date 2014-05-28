@@ -8,13 +8,36 @@ evaluation metrics.
 from optparse import OptionParser
 import xml.etree.ElementTree as ET
 
-def compare(ixml, gold):
+entity_type = {"None" : 0,
+               "Increase" : 1,
+               "Decrease" : 2,
+               "Change" : 3,
+               "Cause" : 4,
+               "Correlate" : 5,
+               "Negative_Correlate" : 6,
+               "Positive_Correlate" : 7,
+               "And" : 8,
+               "Or" : 9,
+               "RefExp" : 10,
+               "Feedback" : 11,
+               "Variable" : 12, 
+               "Thing" : 13 }
+
+argument_type = {"None" : 0,
+                 "Theme" : 1,
+                 "Agent" : 2,
+                 "Co-theme" : 3,
+                 "Part" : 4,
+                 "RefExp" : 5}
+
+def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argument=None):
     ixml = ET.parse(ixml)
     gxml = ET.parse(gold)
     
-    fp = 0
-    tp = 0
-    fn = 0
+    if not confusion_matrix_entities:
+        confusion_matrix_entities = [[0 for i in xrange(len(entity_type))] for j in xrange(len(entity_type))]
+    if not confusion_matrix_argument:
+        confusion_matrix_argument = [[0 for i in xrange(len(argument_type))] for j in xrange(len(argument_type))]
     
     # Find all documents in both xmls
     idocs = [doc for doc in ixml.findall('document')]
@@ -38,10 +61,15 @@ def compare(ixml, gold):
 
             # Try to match each trigger in IXML to a trigger in GXML
             event_id_map = {}
-            type_map = []
+            matches = []
+            non_matched_i = []
+            non_matched_g = []
+            matched_g = []
             
             for itrg in itrgs:
                 i_start, i_end = itrg.attrib['charOffset'].split('-')
+                i_event_id = itrg.attrib['id']
+                i_event_type = itrg.attrib['type']
                 potmatch = []
 
                 for gtrg in gtrgs:
@@ -55,24 +83,23 @@ def compare(ixml, gold):
                     gtrg = potmatch.pop()
                     g_event_id = gtrg.attrib['id']
                     g_event_type = gtrg.attrib['type']
-                    i_event_id = itrg.attrib['id']
-                    i_event_type = itrg.attrib['type']
                     event_id_map[g_event_id] = i_event_id
-                    type_map.append( (g_event_type, i_event_type) )
+                    matches.append( (g_event_type, i_event_type) )
+                    matched_g.append(g_event_id)
+                else: 
+                    non_matched_i.append(i_event_type)
                     
             # Now score all the event matches
-            for type1, type2 in type_map:
-                if type1 == type2:
-                    tp += 1
-                else:
-                    # Is this the proper score?
-                    fp += 1
-                    fn += 1
+            for g_type, i_type in matches:
+                confusion_matrix_entities[entity_type[g_type]][entity_type[i_type]] += 1
             
-            # Give penalty for all non-aligned events
-            fp += len(itrgs) - len(type_map) 
-            fn += len(gtrgs) - len(type_map) 
-                        
+            # All non-matched events are counted as matched with None
+            for i_type in non_matched_i:
+                confusion_matrix_entities[entity_type["None"]][entity_type[i_type]] += 1
+            non_matched_g = [trg.attrib['type'] for trg in gtrgs if not trg.attrib['id'] in matched_g]
+            for g_type in non_matched_g:
+                confusion_matrix_entities[entity_type[g_type]][entity_type["None"]] += 1
+         
             # Index the given keys to help interaction matching
             given_e = [trg.attrib['id'] for trg in isnt[j].findall('entity') if trg.attrib.get('given') == "True"]            
             for e in given_e:
@@ -86,35 +113,54 @@ def compare(ixml, gold):
                 iitr_e1 = iitr.attrib['e1']
                 iitr_e2 = iitr.attrib['e2']
                 iitr_type = iitr.attrib['type']
+                if iitr_type in ["Part", "Part2", "Part3", "Part4"]:
+                    iitr_type = "Part"
                 
                 for gitr in gitrs:
                     gitr_e1 = gitr.attrib['e1']
                     gitr_e2 = gitr.attrib['e2']
                     gitr_type = gitr.attrib['type']
+                    if gitr_type in ["Part", "Part2", "Part3", "Part4"]:
+                        gitr_type = "Part"
                     
                     try:
-                        if gitr_type == iitr_type and event_id_map[gitr_e1] == iitr_e1 and event_id_map[gitr_e2] == iitr_e2:
-                            # Then its a match
-                            tp += 1
+                        if event_id_map[gitr_e1] == iitr_e1 and event_id_map[gitr_e2] == iitr_e2:
+                            confusion_matrix_argument[argument_type[gitr_type]][argument_type[iitr_type]] += 1
                             gitrs.remove(gitr)
                             break
-                        else:
-                            fp += 1
-                    except KeyError:
+                    except:
                         pass
+                else:
+                    # If an interaction is not matched in the gold standard, it 
+                    # is matched to None
+                    confusion_matrix_argument[argument_type["None"]][argument_type[iitr_type]] += 1
+             
+             # Then all the interactions in the gold standard that are not in the output
+            for gitr in gitrs:
+                 gitr_type = gitr.attrib['type'] 
+                 if gitr_type in ["Part", "Part2", "Part3", "Part4"]:
+                     gitr_type = "Part"
+                 confusion_matrix_argument[argument_type[gitr_type]][argument_type["None"]] += 1
                     
-            fn += len(gitrs)
-                    
-    print tp, fp, fn
-    p = float(tp)/float(tp+fp)
-    r = float(tp)/float(tp+fn)
-    print "Precision", p
-    print "Recall", r
-    print "F-score", float(2*p*r)/float(p+r)
-    # Starting parsing at Wed May 21 18:49:02 2014
+    return confusion_matrix_entities, confusion_matrix_argument
 
+def print_matrix(matrix, dicti):
+    orig_keys = dicti.keys()
+    short_keys = [key[:5] for key in orig_keys]
+    
+    print "\t"+"\t".join(short_keys)
+    
+    for i in xrange(len(matrix)):
+        stri = ""
+        for j in xrange(-1, len(matrix)):
+            if j==-1:
+                stri += short_keys[i] + "\t"
+            else:
+                stri += str(matrix[dicti[orig_keys[i]]][dicti[orig_keys[j]]]) + "\t"
+        print stri
 
 if __name__ == "__main__":
+	"""
     optparser = OptionParser("Script for evaluating IXML output with gold standard.")
     optparser.add_option("-i", "--ixml", default=None, dest="ixml", help="Path to the IXML file to evaluate.")
     optparser.add_option("-g", "--gold", default=None, dest="gold", help="Path to the gold standard IXML file.")
@@ -123,4 +169,25 @@ if __name__ == "__main__":
     assert options.ixml, "You must specify an IXML file to evaluate!"
     assert options.gold, "You must specify a gold standard IXML file!"    
     
-    compare(options.ixml, options.gold)
+    cme, cma = compare(options.ixml, options.gold)
+    
+    print_matrix(cme, entity_type)
+    print
+    print_matrix(cma, argument_type)
+"""
+    files = [("/data/software/nlp/TEES/tmp/fold0/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_0"),
+             ("/data/software/nlp/TEES/tmp/fold1/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_1"),
+             ("/data/software/nlp/TEES/tmp/fold2/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_2"),
+             ("/data/software/nlp/TEES/tmp/fold3/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_3"),
+             ("/data/software/nlp/TEES/tmp/fold4/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_4"),
+            ]
+    
+    confusion_e = None
+    confusion_i = None
+    
+    for ii, gg in files:
+        confusion_e, confusion_i = compare(ii, gg, confusion_matrix_entities=confusion_e, confusion_matrix_argument=confusion_i)
+    
+    print_matrix(confusion_e, entity_type)
+    print 
+    print_matrix(confusion_i, argument_type)
