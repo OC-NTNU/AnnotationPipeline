@@ -83,7 +83,7 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                 
                 # If there are multiple partial matches, take the match with 
                 # the highest degree of overlap.
-                if len(potmatch) < 2:
+                if len(potmatch) > 1:
                     max_overlap = -1
                     best = None
                     for pm in potmatch:
