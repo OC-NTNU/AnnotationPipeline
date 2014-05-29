@@ -93,6 +93,11 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                         overlap -= max(0, pm_end - i_end)
                         if overlap > max_overlap:
                             best = pm
+                    if best == None:
+                        print "DEATH"
+                        print i_event_id, i_event_type, i_start, i_end
+                        for pm in potmatch:
+                            print ET.dump(pm)
                     potmatch = [best]
                 
                 if potmatch:
