@@ -81,7 +81,12 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                     if (g_start >= i_start and g_start <= i_end) or (g_end >= i_start and g_end <= i_end):
                         potmatch.append(gtrg)
                 
-                assert len(potmatch) < 2, "Match on multiple locations, improve script!"
+                try:
+                    assert len(potmatch) < 2, "Match on multiple locations, improve script!"
+                except AssertionError:
+                    print "AE"
+                    for pm in potmatch:
+                        print pm
                 
                 if potmatch:
                     gtrg = potmatch.pop()
