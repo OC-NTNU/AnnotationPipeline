@@ -67,13 +67,13 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
             matched_g = []
             
             for itrg in itrgs:
-                i_start, i_end = itrg.attrib['charOffset'].split('-')
+                i_start, i_end = map(int, itrg.attrib['charOffset'].split('-'))
                 i_event_id = itrg.attrib['id']
                 i_event_type = itrg.attrib['type']
                 potmatch = []
 
                 for gtrg in gtrgs:
-                    g_start, g_end = gtrg.attrib['charOffset'].split('-')
+                    g_start, g_end = map(int, gtrg.attrib['charOffset'].split('-'))
                     # Matching by either identical start or end offsets
 #                    if g_start == i_start or i_end == g_end:
 #                        potmatch.append(gtrg)
@@ -87,7 +87,7 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                     max_overlap = -1
                     best = None
                     for pm in potmatch:
-                        pm_start, pm_end = pm.attrib['charOffset'].split('-')
+                        pm_start, pm_end = map(int, pm.attrib['charOffset'].split('-'))
                         overlap = pm_end - pm_start
                         overlap -= max(0, i_start - pm_start)
                         overlap -= max(0, pm_end - i_end)
