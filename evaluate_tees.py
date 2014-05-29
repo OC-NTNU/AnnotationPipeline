@@ -74,7 +74,11 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
 
                 for gtrg in gtrgs:
                     g_start, g_end = gtrg.attrib['charOffset'].split('-')
-                    if g_start == i_start or i_end == g_end:
+                    # Matching by either identical start or end offsets
+#                    if g_start == i_start or i_end == g_end:
+#                        potmatch.append(gtrg)
+                    # Matching by scope overlap, as in PMS task
+                    if (g_start >= i_start and g_start <= i_end) or (g_end >= i_start and g_end <= i_end):
                         potmatch.append(gtrg)
                 
                 assert len(potmatch) < 2, "Match on multiple locations, improve script!"
