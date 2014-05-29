@@ -175,11 +175,11 @@ if __name__ == "__main__":
     print
     print_matrix(cma, argument_type)
 """
-	files = [("/data/software/nlp/TEES/tmp/fold0/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_0"),
-             ("/data/software/nlp/TEES/tmp/fold1/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_1"),
-             ("/data/software/nlp/TEES/tmp/fold2/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_2"),
-             ("/data/software/nlp/TEES/tmp/fold3/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_3"),
-             ("/data/software/nlp/TEES/tmp/fold4/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_4"),
+	files = [("/data/software/nlp/TEES/tmp/er_fold0/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_0.xml"),
+             ("/data/software/nlp/TEES/tmp/er_fold1/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_1.xml"),
+             ("/data/software/nlp/TEES/tmp/er_fold2/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_2.xml"),
+             ("/data/software/nlp/TEES/tmp/er_fold3/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_3.xml"),
+             ("/data/software/nlp/TEES/tmp/er_fold4/classification-test/test-unmerging-pred.xml", "/data/software/nlp/TEES/tmp/IXML/test_4.xml"),
             ]
     
 	confusion_e = None
