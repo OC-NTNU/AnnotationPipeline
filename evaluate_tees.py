@@ -81,12 +81,19 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                     if (g_start >= i_start and g_start <= i_end) or (g_end >= i_start and g_end <= i_end):
                         potmatch.append(gtrg)
                 
-                try:
-                    assert len(potmatch) < 2, "Match on multiple locations, improve script!"
-                except AssertionError:
-                    print "AE"
+                # If there are multiple partial matches, take the match with 
+                # the highest degree of overlap.
+                if len(potmatch) < 2:
+                    max_overlap = -1
+                    best = None
                     for pm in potmatch:
-                        print ET.dump(pm[0]) + " -- " + ET.dump(pm[1])
+                        pm_start, pm_end = pm.attrib['charOffset'].split('-')
+                        overlap = pm_end - pm_start
+                        overlap -= max(0, i_start - pm_start)
+                        overlap -= max(0, pm_end - i_end)
+                        if overlap > max_overlap:
+                            best = pm
+                    potmatch = [best]
                 
                 if potmatch:
                     gtrg = potmatch.pop()
