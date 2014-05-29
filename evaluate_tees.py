@@ -56,8 +56,8 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
         # Iterate over sentences
         for j in xrange(len(isnt)):
             # Find all non-given triggers in the sentences
-            itrgs = [trg for trg in isnt[j].findall('entity') if not trg.attrib.get('given') == "True"]
-            gtrgs = [trg for trg in gsnt[j].findall('entity') if not trg.attrib.get('given') == "True"]
+            itrgs = [trg for trg in isnt[j].findall('entity')] # if not trg.attrib.get('given') == "True"]
+            gtrgs = [trg for trg in gsnt[j].findall('entity')] # if not trg.attrib.get('given') == "True"]
 
             # Try to match each trigger in IXML to a trigger in GXML
             event_id_map = {}
