@@ -86,7 +86,7 @@ def compare(ixml, gold, confusion_matrix_entities=None, confusion_matrix_argumen
                 except AssertionError:
                     print "AE"
                     for pm in potmatch:
-                        print pm
+                        print ET.dump(pm[0]) + " -- " + ET.dump(pm[1])
                 
                 if potmatch:
                     gtrg = potmatch.pop()
