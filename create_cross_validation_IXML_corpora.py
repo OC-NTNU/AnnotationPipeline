@@ -11,6 +11,11 @@ import os
 def build_corpora(ann_dir, nlp_dir, is_given, ignore_sentences):
     parse_and_align.parse_and_align(filefolder=ann_dir, nlpfolder=nlp_dir)    
     
+    if is_given:
+        is_given = 'True'
+    else:
+        is_given = 'False'
+    
     # Find all the papers    
     papers = list(set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)]))
     assert len(papers) == 10, "The current script assumes a corpus of 10 papers. If you have more, maybe a 5-fold is not the best idea?"
@@ -23,7 +28,7 @@ def build_corpora(ann_dir, nlp_dir, is_given, ignore_sentences):
         devel_set = training_set[:len(training_set)//2]
         training_set = training_set[len(training_set)//2:]
         
-        do_convert(test_set, ann_dir, nlp_dir, "test_"+str(start_index/2), given=is_given, ignore_sentences)
+        do_convert(test_set, ann_dir, nlp_dir, "test_"+str(start_index/2), given=is_given, ignore_sentences=False)
         do_convert(training_set, ann_dir, nlp_dir, "train_"+str(start_index/2), given=is_given, ignore_sentences)
         do_convert(devel_set, ann_dir, nlp_dir, "devel_"+str(start_index/2), given=is_given, ignore_sentences)
 
@@ -31,7 +36,7 @@ if __name__ == "__main__":
     optparser = OptionParser("Script for building IXML corpora for cross validation. Assumes 10 papers and 5 fold validation.")
     optparser.add_option("-a", "--ann", default=None, dest="annotation_directory", help="Directory where the annotation files are stored.")
     optparser.add_option("-p", "--prep", default=None, dest="analyses_directory", help="Directory where the linguistic preprocessing files are stored.")
-    optparser.add_option("--ignoreSentences", default=False, dest="ignore_sentences", action="store_true", help="Pass this trigger if sentences without annotation should not be included in the IXML")
+    optparser.add_option("--ignoreSentences", default=False, dest="ignore_sentences", action="store_true", help="Pass this trigger if sentences without annotation should not be included in the train and devel IXML")
     optparser.add_option("--given", default=False, dest="given", action="store_true", help="Pass this trigger if GIVEN=TRUE should be specified in the IXML for every entity")
     (options, args) = optparser.parse_args()
     

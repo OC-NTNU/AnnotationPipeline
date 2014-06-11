@@ -30,7 +30,7 @@ def convert_to_ixml(ann_dir, nlp_dir, remove_sentences):
     do_convert(papers, ann_dir, nlp_dir, "corpus", remove_sentences)
     
     
-def do_convert(papers, ann_dir, nlp_dir, filename, given='True', remove_sentences):
+def do_convert(papers, ann_dir, nlp_dir, filename, given='True', ignore_sentences=False):
     root = ET.Element('corpus')
     xml_tree = ET.ElementTree(element=root)
     root.attrib = {'source' : 'OceanCertainCorpus'}
@@ -102,7 +102,7 @@ def do_convert(papers, ann_dir, nlp_dir, filename, given='True', remove_sentence
             print "Sentence", i
 
             # If --ignoreSentences is passed, ignore sentence if it lacks annotation
-            if remove_sentences:
+            if ignore_sentences:
                 if not sentence_nbr_to_entities[i]:
                     continue
             
