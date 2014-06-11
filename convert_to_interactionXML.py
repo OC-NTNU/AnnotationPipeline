@@ -99,11 +99,7 @@ def do_convert(papers, ann_dir, nlp_dir, filename, given='True'):
             
         # Create sentence level nodes in the XML
         for i, sentence in enumerate(sentences):
-<<<<<<< HEAD
-	    print "Sentence", i
-=======
             print "Sentence", i
->>>>>>> a046eab4d4df374ed40e2ef5f53ebb73a19f676e
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
             sentence_node.attrib = {'id' : paper+".s"+str(i),
