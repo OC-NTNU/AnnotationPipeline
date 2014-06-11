@@ -20,17 +20,17 @@ def find_original_offset(original_offsets, offset):
             offset -= (sentence_length+1)   # The +1 is required due to something to do with the non-overlap of offsets
     assert False
 
-def convert_to_ixml(ann_dir, nlp_dir):
+def convert_to_ixml(ann_dir, nlp_dir, remove_sentences):
     # First run parse and align script.
     parse_and_align.parse_and_align(filefolder=ann_dir, nlpfolder=nlp_dir)    
     
     # Find all the papers    
     papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])    
     
-    do_convert(papers, ann_dir, nlp_dir, "corpus")
+    do_convert(papers, ann_dir, nlp_dir, "corpus", remove_sentences)
     
     
-def do_convert(papers, ann_dir, nlp_dir, filename, given='True'):
+def do_convert(papers, ann_dir, nlp_dir, filename, given='True', remove_sentences):
     root = ET.Element('corpus')
     xml_tree = ET.ElementTree(element=root)
     root.attrib = {'source' : 'OceanCertainCorpus'}
@@ -100,6 +100,12 @@ def do_convert(papers, ann_dir, nlp_dir, filename, given='True'):
         # Create sentence level nodes in the XML
         for i, sentence in enumerate(sentences):
             print "Sentence", i
+
+            # If --ignoreSentences is passed, ignore sentence if it lacks annotation
+            if remove_sentences:
+                if not sentence_nbr_to_entities[i]:
+                    continue
+            
             sentence_node = ET.SubElement(document, 'sentence')
             start, end = offsets[i]
             sentence_node.attrib = {'id' : paper+".s"+str(i),
@@ -256,9 +262,10 @@ if __name__ == "__main__":
     optparser = OptionParser("Script for converting to Interaction XML format.")
     optparser.add_option("-a", "--ann", default=None, dest="annotation_directory", help="Directory where the annotation files are stored.")
     optparser.add_option("-p", "--prep", default=None, dest="analyses_directory", help="Directory where the linguistic preprocessing files are stored.")
+    optparser.add_option("--ignoreSentences", default=False, dest="remove_sentences", action="store_true", help="Pass this trigger if you want the conversion procedure to ignore all sentences without events or entities.")
     (options, args) = optparser.parse_args()
     
     assert options.annotation_directory, "You must specify a directory from which to gather the annotation files."
     assert options.analyses_directory, "You must specify a directory from which to gather the files with the linguistic preprocessings."    
     
-    convert_to_ixml(options.annotation_directory, options.analyses_directory)
+    convert_to_ixml(options.annotation_directory, options.analyses_directory, options.remove_sentences)
