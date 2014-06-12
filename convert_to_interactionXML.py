@@ -27,7 +27,7 @@ def convert_to_ixml(ann_dir, nlp_dir, remove_sentences):
     # Find all the papers    
     papers = set([filename[:filename.index('.')] for filename in os.listdir(ann_dir)])    
     
-    do_convert(papers, ann_dir, nlp_dir, "corpus", remove_sentences)
+    do_convert(papers, ann_dir, nlp_dir, "corpus", ignore_sentences=remove_sentences)
     
     
 def do_convert(papers, ann_dir, nlp_dir, filename, given='True', ignore_sentences=False):

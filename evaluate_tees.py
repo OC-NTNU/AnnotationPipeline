@@ -181,7 +181,7 @@ def print_matrix(matrix, dicti):
         print stri
 
 if __name__ == "__main__":
-	"""
+
     optparser = OptionParser("Script for evaluating IXML output with gold standard.")
     optparser.add_option("-i", "--ixml", default=None, dest="ixml", help="Path to the IXML file to evaluate.")
     optparser.add_option("-g", "--gold", default=None, dest="gold", help="Path to the gold standard IXML file.")
@@ -212,3 +212,4 @@ if __name__ == "__main__":
 	print_matrix(confusion_e, entity_type)
 	print 
 	print_matrix(confusion_i, argument_type)
+"""

@@ -7,7 +7,7 @@ import os
 import xml.etree.ElementTree as ET
 from subprocess import call
 
-def parse_and_align(filefolder="Brat", nlpfolder="CoreNLP", coreNLPpath="/home/elias/tmp/master/sfcnlp"):
+def parse_and_align(filefolder="Brat", nlpfolder="CoreNLP", coreNLPpath="/home/elias/master/sfcnlp"):
     parse(filefolder, nlpfolder, coreNLPpath)
     align(filefolder, nlpfolder)
     

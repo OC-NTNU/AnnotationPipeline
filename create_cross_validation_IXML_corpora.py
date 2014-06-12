@@ -29,8 +29,8 @@ def build_corpora(ann_dir, nlp_dir, is_given, ignore_sentences):
         training_set = training_set[len(training_set)//2:]
         
         do_convert(test_set, ann_dir, nlp_dir, "test_"+str(start_index/2), given=is_given, ignore_sentences=False)
-        do_convert(training_set, ann_dir, nlp_dir, "train_"+str(start_index/2), given=is_given, ignore_sentences)
-        do_convert(devel_set, ann_dir, nlp_dir, "devel_"+str(start_index/2), given=is_given, ignore_sentences)
+        do_convert(training_set, ann_dir, nlp_dir, "train_"+str(start_index/2), given=is_given, ignore_sentences=ignore_sentences)
+        do_convert(devel_set, ann_dir, nlp_dir, "devel_"+str(start_index/2), given=is_given, ignore_sentences=ignore_sentences)
 
 if __name__ == "__main__":
     optparser = OptionParser("Script for building IXML corpora for cross validation. Assumes 10 papers and 5 fold validation.")
