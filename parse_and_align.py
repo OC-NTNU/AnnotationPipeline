@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Script to do parsing and dependency extraction on interesting sentences, and 
@@ -6,6 +7,7 @@ the results are realigned to the original TXT file produced by NXML2TXT.
 import os
 import xml.etree.ElementTree as ET
 from subprocess import call
+from os.path import splitext
 
 def parse_and_align(filefolder="Brat", nlpfolder="CoreNLP", coreNLPpath="/home/elias/master/sfcnlp"):
     parse(filefolder, nlpfolder, coreNLPpath)
@@ -37,7 +39,7 @@ def parse(filefolder, nlpfolder, coreNLPpath):
           "-filelist", os.path.join("tmp", "corenlpfilelist")])
           
 def align(filefolder, nlpfolder):
-    filenames = set([filename[:filename.index('.')] for filename in os.listdir(filefolder)])
+    filenames = set([splitext(filename)[0] for filename in os.listdir(filefolder)])
     
     for filename in filenames:
         # Find the sentence offset boundaries
@@ -62,4 +64,21 @@ def align(filefolder, nlpfolder):
         cnlp_xml.write(os.path.join(nlpfolder, filename+".xml"))
         
 if __name__=="__main__":
-    print "Interface running the script from shell is not written yet."
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description=__doc__, 
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument(
+        "coreNLPpath", default="CoreNLP",
+        help="Path to the folder containing Stanford CoreNLP.")
+    parser.add_argument(
+        "-c", "--corenlpfolder", dest="nlpfolder", default="CoreNLP", 
+        help="Name of the folder that contains the .xml files output by Stanford CoreNLP.")
+    parser.add_argument(
+        "-b", "--bratfolder", dest="filefolder",  default="Brat",
+        help="Directory where the Brat .txt and .soa are stored.")
+    
+    args = parser.parse_args()
+    parse_and_align(args.filefolder, args.nlpfolder, args.coreNLPpath)
+
